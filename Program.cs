@@ -9,8 +9,8 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5000"; // Default to 5000 if not set
+
 builder.WebHost.UseUrls($"http://*:{port}");
 
 
