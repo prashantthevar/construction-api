@@ -1,0 +1,47 @@
+# .NET
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+[Dd]istPublic/
+build/
+obj/
+bin/
+.vs/
+.vscode/
+.idea/
+
+# User-specific files
+usersecrets/
+appsettings.Development.json
+appsettings.Production.json
+appsettings.json
+appsettings.local.json
+
+# .env files (environment-specific configuration)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# ASP.NET Core files
+wwwroot/
+Controllers/Properties/
+
+# Rider IDE files
+.idea/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# macOS Finder directory attributes
+.DS_Store
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
