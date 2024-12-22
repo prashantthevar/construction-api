@@ -9,8 +9,8 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000"; // Default to 5000 if not set
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000"; // Default to 5000 if not set
 builder.WebHost.UseUrls($"http://*:{port}");
 
 
@@ -58,6 +58,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 
 
 
@@ -86,6 +87,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapHealthChecks("/health");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
