@@ -15,7 +15,7 @@ namespace ConstructionManagementSaaS.Data
 
         public RoleSeeder(IMongoClient mongoClient, IMongoDBSettings settings)
         {
-            var database = mongoClient.GetDatabase(settings.DatabaseName);
+            var database = mongoClient.GetDatabase("test");
             _rolesCollection = database.GetCollection<Role>("roles");
             _itemsCollection = database.GetCollection<Item>("items");
         }
