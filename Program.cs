@@ -9,9 +9,9 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000"; // Default to 5000 if not set
+// var port = Environment.GetEnvironmentVariable("PORT") ?? "5000"; // Default to 5000 if not set
 
-builder.WebHost.UseUrls($"http://*:{port}");
+// builder.WebHost.UseUrls($"http://*:{port}");
 
 
 // Configure MongoDB Settings from environment variables
@@ -59,6 +59,7 @@ builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
+// 
 var app = builder.Build();
 
 // Enable Swagger UI in development environment
