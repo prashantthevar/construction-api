@@ -25,7 +25,7 @@ builder.Services.AddSingleton<IMongoDBSettings>(sp =>
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    return new MongoClient(settings.ConnectionString);
+    return new MongoClient("mongodb://mongo:wcoejUokOtszAnyAmNLggJkkWAEfbVWz@autorack.proxy.rlwy.net:10353");
 });
 
 // Register IMongoDatabase
