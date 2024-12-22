@@ -9,16 +9,12 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; // Default to 5000 if not set
-
-builder.WebHost.UseUrls($"http://*:{port}");
-
 
 // Configure MongoDB Settings from environment variables
 builder.Services.Configure<MongoDBSettings>(options =>
 {
-    options.ConnectionString = "mongodb://mongo:wPgUiQEJbOSeHwsYRiCpVnFWnUDHMQIg@autorack.proxy.rlwy.net:58537";
-    options.DatabaseName = "construction-dev";
+    options.ConnectionString = "mongodb://mongo:wcoejUokOtszAnyAmNLggJkkWAEfbVWz@autorack.proxy.rlwy.net:10353";
+    options.DatabaseName = "test";
 });
 
 // Register MongoDB Settings as a singleton service
@@ -29,7 +25,7 @@ builder.Services.AddSingleton<IMongoDBSettings>(sp =>
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    return new MongoClient("mongodb://mongo:wPgUiQEJbOSeHwsYRiCpVnFWnUDHMQIg@autorack.proxy.rlwy.net:58537");
+    return new MongoClient(settings.ConnectionString);
 });
 
 // Register IMongoDatabase
@@ -37,7 +33,7 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IMongoDBSettings>();
-    return mongoClient.GetDatabase("construction-dev"); // Get the database from the client
+    return mongoClient.GetDatabase("test"); // Get the database from the client
 });
 
 
@@ -58,6 +54,8 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
+
 
 var app = builder.Build();
 
