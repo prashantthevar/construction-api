@@ -33,7 +33,7 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IMongoDBSettings>();
-    return mongoClient.GetDatabase(settings.DatabaseName); // Get the database from the client
+    return mongoClient.GetDatabase("test"); // Get the database from the client
 });
 
 
