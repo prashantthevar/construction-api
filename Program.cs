@@ -25,7 +25,7 @@ builder.Services.AddSingleton<IMongoDBSettings>(sp =>
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    return new MongoClient("mongodb://mongo:wcoejUokOtszAnyAmNLggJkkWAEfbVWz@autorack.proxy.rlwy.net:10353");
+    return new MongoClient(settings.ConnectionString);
 });
 
 // Register IMongoDatabase
@@ -33,12 +33,14 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IMongoDBSettings>();
-    return mongoClient.GetDatabase("test"); // Get the database from the client
+    return mongoClient.GetDatabase(settings.DatabaseName); // Get the database from the client
 });
+
 
 // Register Swagger services
 builder.Services.AddSwaggerGen(options =>
 {
+    // Optional: Configure additional Swagger options (e.g., API info, etc.)
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Construction Management API",
@@ -53,6 +55,8 @@ builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
+
+
 var app = builder.Build();
 
 // Enable Swagger UI in development environment
@@ -65,20 +69,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Log the app start for debugging
-Console.WriteLine("Application started");
-
-// Ensure proper port binding (Railway uses the PORT environment variable)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
-app.Urls.Add($"http://0.0.0.0:{port}");
-Console.WriteLine($"Listening on port {port}");
-
-// Use HTTPS redirection only in non-production environments
-if (!app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
-
 // Seed roles when the app starts
 using (var scope = app.Services.CreateScope())
 {
@@ -87,14 +77,13 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
-// Log incoming requests for debugging
-app.Use(async (context, next) =>
-{
-    Console.WriteLine($"Received request: {context.Request.Method} {context.Request.Path}");
-    await next.Invoke();
-});
-
 app.Run();
