@@ -36,7 +36,6 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
     return mongoClient.GetDatabase("test"); // Get the database from the client
 });
 
-
 // Register Swagger services
 builder.Services.AddSwaggerGen(options =>
 {
@@ -55,8 +54,6 @@ builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-
-
 var app = builder.Build();
 
 // Enable Swagger UI in development environment
@@ -69,11 +66,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Use HTTPS redirection only in non-production environments
 if (!app.Environment.IsProduction())
 {
     app.UseHttpsRedirection();
 }
-
 
 // Seed roles when the app starts
 using (var scope = app.Services.CreateScope())
@@ -83,12 +80,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseAuthorization();
 app.MapControllers();
+
+// Port binding for Railway
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000"; // Default to 3000 if PORT is not set
+app.Urls.Add($"http://*:{port}");
+
 app.Run();
