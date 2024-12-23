@@ -10,22 +10,21 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure MongoDB Settings from environment variables
-builder.Services.Configure<MongoDBSettings>(options =>
-{
-    options.ConnectionString = "mongodb://mongo:uOSZMWRgwbEnEJdCHbPHvyIIzffWzSCC@autorack.proxy.rlwy.net:24661";
-    options.DatabaseName = "test";
-});
-
-// Register MongoDB Settings as a singleton service
+// Bind MongoDB settings from appsettings.json and allow environment variable overrides
+builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDBSettings"));
 builder.Services.AddSingleton<IMongoDBSettings>(sp =>
-    sp.GetRequiredService<IOptions<MongoDBSettings>>().Value);
+{
+    var config = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
+    config.ConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING") ?? config.ConnectionString;
+    config.DatabaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE") ?? config.DatabaseName;
+    return config;
+});
 
 // Register MongoClient as a singleton
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
-    var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    return new MongoClient("mongodb://mongo:uOSZMWRgwbEnEJdCHbPHvyIIzffWzSCC@autorack.proxy.rlwy.net:24661");
+    var settings = sp.GetRequiredService<IMongoDBSettings>();
+    return new MongoClient(settings.ConnectionString);
 });
 
 // Register IMongoDatabase
@@ -33,14 +32,12 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IMongoDBSettings>();
-    return mongoClient.GetDatabase("test"); // Get the database from the client
+    return mongoClient.GetDatabase(settings.DatabaseName);
 });
-
 
 // Register Swagger services
 builder.Services.AddSwaggerGen(options =>
 {
-    // Optional: Configure additional Swagger options (e.g., API info, etc.)
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Construction Management API",
@@ -55,14 +52,12 @@ builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-
-
 var app = builder.Build();
 
-// Enable Swagger UI in development environment
-if (app.Environment.IsDevelopment())
+// Enable Swagger UI in development and production environments
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    app.UseSwagger(); // Generates Swagger JSON
+    app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Construction Management API V1");
@@ -73,17 +68,14 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
-    await roleSeeder.SeedRolesAsync(); // This will seed the roles into the MongoDB database
+    await roleSeeder.SeedRolesAsync();
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+// Configure the HTTP request pipeline
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+
+// Configure to listen on Railway-assigned PORT or default to 3000
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+app.Run($"http://0.0.0.0:{port}");
