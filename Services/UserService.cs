@@ -13,7 +13,7 @@ namespace ConstructionManagementSaaS.Services
 
         public UserService(IMongoClient mongoClient, IMongoDBSettings settings)
         {
-            var database = mongoClient.GetDatabase("construction-dev");
+            var database = mongoClient.GetDatabase("test");
             _userCollection = database.GetCollection<User>("users");
             _roleCollection = database.GetCollection<Role>("roles");
         }
