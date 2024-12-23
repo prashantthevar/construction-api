@@ -39,7 +39,6 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 // Register Swagger services
 builder.Services.AddSwaggerGen(options =>
 {
-    // Optional: Configure additional Swagger options (e.g., API info, etc.)
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
         Title = "Construction Management API",
@@ -66,6 +65,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Log the app start for debugging
+Console.WriteLine("Application started");
+
+// Ensure proper port binding (Railway uses the PORT environment variable)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+app.Urls.Add($"http://0.0.0.0:{port}");
+Console.WriteLine($"Listening on port {port}");
+
 // Use HTTPS redirection only in non-production environments
 if (!app.Environment.IsProduction())
 {
@@ -83,7 +90,11 @@ using (var scope = app.Services.CreateScope())
 app.UseAuthorization();
 app.MapControllers();
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+// Log incoming requests for debugging
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"Received request: {context.Request.Method} {context.Request.Path}");
+    await next.Invoke();
+});
 
 app.Run();
