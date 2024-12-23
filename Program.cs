@@ -69,6 +69,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
+
 // Seed roles when the app starts
 using (var scope = app.Services.CreateScope())
 {
@@ -83,7 +89,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
