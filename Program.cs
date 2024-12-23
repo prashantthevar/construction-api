@@ -13,8 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure MongoDB Settings from environment variables
 builder.Services.Configure<MongoDBSettings>(options =>
 {
-    options.ConnectionString = "mongodb://mongo:wcoejUokOtszAnyAmNLggJkkWAEfbVWz@autorack.proxy.rlwy.net:10353";
-    options.DatabaseName = "test";
+    options.ConnectionString = "mongodb://mongo:wPgUiQEJbOSeHwsYRiCpVnFWnUDHMQIg@autorack.proxy.rlwy.net:58537";
+    options.DatabaseName = "construction-dev";
 });
 
 // Register MongoDB Settings as a singleton service
@@ -25,7 +25,7 @@ builder.Services.AddSingleton<IMongoDBSettings>(sp =>
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDBSettings>>().Value;
-    return new MongoClient(settings.ConnectionString);
+    return new MongoClient("mongodb://mongo:wPgUiQEJbOSeHwsYRiCpVnFWnUDHMQIg@autorack.proxy.rlwy.net:58537");
 });
 
 // Register IMongoDatabase
@@ -33,7 +33,7 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IMongoDBSettings>();
-    return mongoClient.GetDatabase(settings.DatabaseName); // Get the database from the client
+    return mongoClient.GetDatabase("construction-dev"); // Get the database from the client
 });
 
 
