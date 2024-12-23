@@ -10,11 +10,14 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
+
 // Configure MongoDB Settings from environment variables
 builder.Services.Configure<MongoDBSettings>(options =>
 {
     options.ConnectionString = "mongodb://mongo:wcoejUokOtszAnyAmNLggJkkWAEfbVWz@autorack.proxy.rlwy.net:10353";
-    options.DatabaseName = "test";
+    options.DatabaseName = "construction-dev";
 });
 
 // Register MongoDB Settings as a singleton service
@@ -33,7 +36,7 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var mongoClient = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IMongoDBSettings>();
-    return mongoClient.GetDatabase("test"); // Get the database from the client
+    return mongoClient.GetDatabase("construction-dev"); // Get the database from the client
 });
 
 
@@ -76,14 +79,8 @@ using (var scope = app.Services.CreateScope())
     await roleSeeder.SeedRolesAsync(); // This will seed the roles into the MongoDB database
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
