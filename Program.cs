@@ -83,8 +83,7 @@ using (var scope = app.Services.CreateScope())
 app.UseAuthorization();
 app.MapControllers();
 
-// Port binding for Railway
-var port = Environment.GetEnvironmentVariable("PORT") ?? "3000"; // Default to 3000 if PORT is not set
-app.Urls.Add($"http://*:{port}");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 app.Run();
