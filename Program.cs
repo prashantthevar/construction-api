@@ -52,7 +52,19 @@ builder.Services.AddSingleton<RoleSeeder>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 // Enable Swagger UI in development and production environments
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
